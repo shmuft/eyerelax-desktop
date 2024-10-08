@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.4
-
+import QtQuick.Layouts 1.12
 
 Window {
     visible: true
@@ -66,28 +66,26 @@ Window {
 
             }
         }
-        Item {
+
+        GridLayout {
+            id: grid
+            columns: 2
+            property int prHeight : 20
             anchors {
-                left: targerListView.right
                 top: parent.top
-                right: parent.right
-                rightMargin: 10
+                horizontalCenter: parent.horizontalCenter
             }
+            columnSpacing: 5
 
             Label {
                 text: qsTr("Раздвинуть")
-                anchors.right: sliderWidth.left
-                anchors.verticalCenter: sliderWidth.verticalCenter
                 font.pointSize: 20
             }
 
             Slider {
                 id: sliderWidth
-                anchors {
-                    top: parent.top
-                    right: parent.right
-                }
-                width: 800
+                Layout.preferredWidth: 800
+                Layout.preferredHeight: prHeight
                 from: -100
                 value: 1
                 to: 500
@@ -95,18 +93,13 @@ Window {
 
             Label {
                 text: qsTr("Размер")
-                anchors.right: sliderSize.left
-                anchors.verticalCenter: sliderSize.verticalCenter
                 font.pointSize: 20
             }
 
             Slider {
                 id: sliderSize
-                anchors {
-                    top: sliderWidth.bottom
-                    right: parent.right
-                }
-                width: 800
+                Layout.preferredWidth: 800
+                Layout.preferredHeight: prHeight
                 from: 1
                 value: 100
                 to: 200
@@ -114,60 +107,70 @@ Window {
 
             Label {
                 text: qsTr("Сплюснуть")
-                anchors.right: sliderWidthElement.left
-                anchors.verticalCenter: sliderWidthElement.verticalCenter
                 font.pointSize: 20
             }
 
             Slider {
                 id: sliderWidthElement
-                anchors {
-                    top: sliderSize.bottom
-                    right: parent.right
-                }
-                width: 800
+                Layout.preferredWidth: 800
+                Layout.preferredHeight: prHeight
                 from: 0
                 value: 1
                 to: 1
             }
 
             Label {
+                text: qsTr("Вверх/вниз")
+                font.pointSize: 20
+            }
+
+            Slider {
+                id: sliderUpDown
+                Layout.preferredWidth: 800
+                Layout.preferredHeight: prHeight
+                from: -200
+                value: 0
+                to: 200
+            }
+
+            Label {
                 text: qsTr("Корр-я по x правой")
-                anchors.right: sliderCorrecionRightElement.left
-                anchors.verticalCenter: sliderCorrecionRightElement.verticalCenter
                 font.pointSize: 20
             }
 
             Slider {
                 id: sliderCorrecionRightElement
-                anchors {
-                    top: sliderWidthElement.bottom
-                    right: parent.right
-                }
-                width: 800
+                Layout.preferredWidth: 800
+                Layout.preferredHeight: prHeight
                 from: -50
                 value: 0
                 to: 50
             }
             Label {
                 text: qsTr("Корр-я по x левой")
-                anchors.right: sliderCorrecionLeftElement.left
-                anchors.verticalCenter: sliderCorrecionLeftElement.verticalCenter
                 font.pointSize: 20
             }
 
             Slider {
                 id: sliderCorrecionLeftElement
-                anchors {
-                    top: sliderCorrecionRightElement.bottom
-                    right: parent.right
-                }
-                width: 800
+                Layout.preferredWidth: 800
+                Layout.preferredHeight: prHeight
                 from: -50
                 value: 0
                 to: 50
             }
         }
+
+        Label {
+            anchors {
+                left: grid.right
+                top: grid.top
+                leftMargin: 10
+            }
+            font.pointSize: 20
+            text: "Стрелки: Влево, вправо, вверх, вниз.\nКнопки плюс, минус, A, S, Z, X\nРасслабьте глаза и начните\nсмотреть вдаль соединяя мишени.\nДалее используйте клавиши"
+        }
+
         Image {
             id: target1
             x: {
@@ -176,7 +179,7 @@ Window {
                     return root.width / 2;
                 return  root.width / 2 + calculatedX
             }
-            y: root.height / 3
+            y: root.height / 3 + sliderUpDown.value
             width: sliderSize.value * sliderWidthElement.value
             height: sliderSize.value
             source: "qrc:/img/target.png"
@@ -191,40 +194,40 @@ Window {
 
                 return root.width / 2  + calculatedX;
             }
-            y: root.height / 3
+            y: root.height / 3 + sliderUpDown.value
             width: sliderSize.value * sliderWidthElement.value
             height: sliderSize.value
             source: "qrc:/img/target.png"
         }
-        Keys.onUpPressed: {
-            sliderWidth.value = sliderWidth.value + 1;
-        }
 
-        Keys.onDownPressed: {
-            sliderWidth.value = sliderWidth.value - 1;
-        }
-
+        Keys.onLeftPressed: sliderWidth.value++
+        Keys.onRightPressed: sliderWidth.value--;
+        Keys.onUpPressed: sliderUpDown.value--;
+        Keys.onDownPressed: sliderUpDown.value++;
         Keys.onPressed: {
             if (event.key === Qt.Key_A) {
-                sliderCorrecionLeftElement.value = sliderCorrecionLeftElement.value - 1;
+                sliderCorrecionLeftElement.value--;
                 event.accepted = true;
             }
             else if (event.key === Qt.Key_S)
             {
-                sliderCorrecionLeftElement.value = sliderCorrecionLeftElement.value + 1;
+                sliderCorrecionLeftElement.value++;
                 event.accepted = true;
             }
             else if (event.key === Qt.Key_Z)
             {
-                sliderCorrecionRightElement.value = sliderCorrecionRightElement.value - 1;
+                sliderCorrecionRightElement.value--;
                 event.accepted = true;
             }
             else if (event.key === Qt.Key_X)
             {
-                sliderCorrecionRightElement.value = sliderCorrecionRightElement.value + 1;
+                sliderCorrecionRightElement.value++;
                 event.accepted = true;
+            } else if (event.key === Qt.Key_Plus) {
+                sliderSize.value++
+            } else if (event.key === Qt.Key_Minus) {
+                sliderSize.value--
             }
         }
     }
-
 }
