@@ -85,7 +85,7 @@ Window {
             Slider {
                 id: sliderWidth
                 Layout.preferredWidth: 800
-                Layout.preferredHeight: prHeight
+                Layout.preferredHeight: grid.prHeight
                 from: -100
                 value: 1
                 to: 500
@@ -99,7 +99,7 @@ Window {
             Slider {
                 id: sliderSize
                 Layout.preferredWidth: 800
-                Layout.preferredHeight: prHeight
+                Layout.preferredHeight: grid.prHeight
                 from: 1
                 value: 100
                 to: 200
@@ -113,7 +113,7 @@ Window {
             Slider {
                 id: sliderWidthElement
                 Layout.preferredWidth: 800
-                Layout.preferredHeight: prHeight
+                Layout.preferredHeight: grid.prHeight
                 from: 0
                 value: 1
                 to: 1
@@ -127,7 +127,7 @@ Window {
             Slider {
                 id: sliderUpDown
                 Layout.preferredWidth: 800
-                Layout.preferredHeight: prHeight
+                Layout.preferredHeight: grid.prHeight
                 from: -200
                 value: 0
                 to: 200
@@ -141,7 +141,7 @@ Window {
             Slider {
                 id: sliderCorrecionRightElement
                 Layout.preferredWidth: 800
-                Layout.preferredHeight: prHeight
+                Layout.preferredHeight: grid.prHeight
                 from: -50
                 value: 0
                 to: 50
@@ -154,7 +154,7 @@ Window {
             Slider {
                 id: sliderCorrecionLeftElement
                 Layout.preferredWidth: 800
-                Layout.preferredHeight: prHeight
+                Layout.preferredHeight: grid.prHeight
                 from: -50
                 value: 0
                 to: 50
@@ -204,7 +204,7 @@ Window {
         Keys.onRightPressed: sliderWidth.value--;
         Keys.onUpPressed: sliderUpDown.value--;
         Keys.onDownPressed: sliderUpDown.value++;
-        Keys.onPressed: {
+        Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_A) {
                 sliderCorrecionLeftElement.value--;
                 event.accepted = true;
