@@ -5,8 +5,8 @@ import QtQuick.Layouts 1.12
 
 Window {
     visible: true
-    width: 640
-    height: 480
+    width: 1920
+    height: 1080
     title: qsTr("Расслабон для глаз")
     Component.onCompleted: showMaximized()
     Rectangle {
@@ -71,6 +71,7 @@ Window {
             id: grid
             columns: 2
             property int prHeight : 20
+            property int prWidth: 500
             anchors {
                 top: parent.top
                 horizontalCenter: parent.horizontalCenter
@@ -84,7 +85,7 @@ Window {
 
             Slider {
                 id: sliderWidth
-                Layout.preferredWidth: 800
+                Layout.preferredWidth: grid.prWidth
                 Layout.preferredHeight: grid.prHeight
                 from: -100
                 value: 1
@@ -98,7 +99,7 @@ Window {
 
             Slider {
                 id: sliderSize
-                Layout.preferredWidth: 800
+                Layout.preferredWidth: grid.prWidth
                 Layout.preferredHeight: grid.prHeight
                 from: 1
                 value: 100
@@ -112,7 +113,7 @@ Window {
 
             Slider {
                 id: sliderWidthElement
-                Layout.preferredWidth: 800
+                Layout.preferredWidth: grid.prWidth
                 Layout.preferredHeight: grid.prHeight
                 from: 0
                 value: 1
@@ -126,7 +127,7 @@ Window {
 
             Slider {
                 id: sliderUpDown
-                Layout.preferredWidth: 800
+                Layout.preferredWidth: grid.prWidth
                 Layout.preferredHeight: grid.prHeight
                 from: -200
                 value: 0
@@ -140,7 +141,7 @@ Window {
 
             Slider {
                 id: sliderCorrecionRightElement
-                Layout.preferredWidth: 800
+                Layout.preferredWidth: grid.prWidth
                 Layout.preferredHeight: grid.prHeight
                 from: -50
                 value: 0
@@ -153,7 +154,7 @@ Window {
 
             Slider {
                 id: sliderCorrecionLeftElement
-                Layout.preferredWidth: 800
+                Layout.preferredWidth: grid.prWidth
                 Layout.preferredHeight: grid.prHeight
                 from: -50
                 value: 0
@@ -165,9 +166,10 @@ Window {
             anchors {
                 left: grid.right
                 top: grid.top
+                right: parent.right
                 leftMargin: 10
             }
-            font.pointSize: 20
+            font.pointSize: 16
             text: "Стрелки: Влево, вправо, вверх, вниз.\nКнопки плюс, минус, A, S, Z, X\nРасслабьте глаза и начните\nсмотреть вдаль соединяя мишени.\nДалее используйте клавиши"
         }
 
