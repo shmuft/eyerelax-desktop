@@ -202,6 +202,16 @@ Window {
             source: "qrc:/img/target.png"
         }
 
+        Label {
+            anchors {
+                bottom: parent.bottom
+                horizontalCenter: parent.horizontalCenter
+            }
+            font.pointSize: 16
+            text: "Автор данного приложения не несёт ответственности за ваши действия\nпри использовании данного приложения"
+            horizontalAlignment: Qt.AlignHCenter
+        }
+
         Keys.onLeftPressed: sliderWidth.value++
         Keys.onRightPressed: sliderWidth.value--;
         Keys.onUpPressed: sliderUpDown.value--;

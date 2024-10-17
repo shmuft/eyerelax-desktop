@@ -10,11 +10,14 @@ qt_standard_project_setup(REQUIRES 6.5)
 
 set(SOURCES main.cpp)
 
+set(DATA_FILE README.md)
+
 list (APPEND RESOURCES img.qrc qml.qrc)
 qt_add_resources(SOURCES ${RESOURCES})
 
 qt_add_executable(appeyerelax
     ${SOURCES}
+    ${DATA_FILE}
 )
 
 qt_add_qml_module(appeyerelax
