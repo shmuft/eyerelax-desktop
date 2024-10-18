@@ -62,6 +62,9 @@ Window {
                     ListElement {
                         data: "qrc:/img/circle.png"
                     }
+                    ListElement {
+                        data: "qrc:/img/cow.png"
+                    }
                 }
 
             }
