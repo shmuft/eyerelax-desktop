@@ -24,6 +24,7 @@ Window {
             }
             width: 150
             color: "#A66200"
+
             ListView {
                 id: examplesView
                 anchors.fill: parent
@@ -46,6 +47,7 @@ Window {
                         anchors.fill: parent
                     }
                 }
+
                 model: ListModel {
                     ListElement {
                         data: "qrc:/img/target.png"
@@ -66,7 +68,6 @@ Window {
                         data: "qrc:/img/cow.png"
                     }
                 }
-
             }
         }
 
@@ -166,6 +167,7 @@ Window {
         }
 
         Label {
+            id: descriptionLabel
             anchors {
                 left: grid.right
                 top: grid.top
@@ -174,6 +176,52 @@ Window {
             }
             font.pointSize: 16
             text: "Стрелки: Влево, вправо, вверх, вниз.\nКнопки плюс, минус, A, S, Z, X\nРасслабьте глаза и начните\nсмотреть вдаль соединяя мишени.\nДалее используйте клавиши"
+        }
+
+        // Algorithm state and timer
+        property int algorithmState: 0 // 0 = idle, 1 = wait for user to set comfortable spread, 2 = rotating
+        property real algorithmSavedWidth: 0
+        property real algorithmSavedUpDown: 0
+        property real algorithmCircleRadius: 25 // radius of circular motion in pixels
+        property real algorithmMaxBaseline: 50 // clamp baseline separation to +/- this value when starting
+
+        Timer {
+            id: algorithmTimer
+            interval: 16 // ~60fps
+            repeat: true
+            running: root.algorithmState === 2
+            property real angle: 0
+            property real speed: 0.01
+            onTriggered: {
+                angle += speed
+
+                var baseline = root.algorithmSavedWidth
+                var r = root.algorithmCircleRadius
+                sliderWidth.value = baseline + Math.cos(angle) * r - r
+                sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * r
+            }
+        }
+
+        Button {
+            id: algorithmStart
+            anchors {
+                left: grid.right
+                top: descriptionLabel.bottom
+                right: parent.right
+            }
+            enabled: root.algorithmState == 0
+
+            text: root.algorithmState === 0 ? "Включить алгоритм" :
+                  root.algorithmState === 1 ? "Настройте комфортно и нажмите Пробел" :
+                  "Вращение — нажмите Пробел для остановки"
+
+            onClicked: {
+                root.focus = true;
+                var raw = sliderWidth.value
+                root.algorithmSavedWidth = Math.max(-root.algorithmMaxBaseline, Math.min(root.algorithmMaxBaseline, raw))
+                root.algorithmSavedUpDown = sliderUpDown.value
+                root.algorithmState = 1
+            }
         }
 
         Image {
@@ -220,6 +268,32 @@ Window {
         Keys.onUpPressed: sliderUpDown.value--;
         Keys.onDownPressed: sliderUpDown.value++;
         Keys.onPressed: (event)=> {
+            // Space handling for algorithm states
+            if (event.key === Qt.Key_Space) {
+                if (root.algorithmState === 1) {
+                    // User confirmed comfortable spread: start spiral rotation from saved max towards center
+                    root.algorithmSavedWidth = sliderWidth.value
+                    root.algorithmSavedUpDown = sliderUpDown.value
+
+                    // reset timer state and start
+                    // algorithmTimer.elapsed = 0
+                    algorithmTimer.angle = 0
+                    algorithmTimer.running = true
+                    root.algorithmState = 2
+                    event.accepted = true
+                    return
+                } else if (root.algorithmState === 2) {
+                    // stop rotation and restore saved values
+                    algorithmTimer.running = false
+                    root.algorithmState = 0
+                    sliderWidth.value = root.algorithmSavedWidth
+                    sliderUpDown.value = root.algorithmSavedUpDown
+
+                    event.accepted = true
+                    return
+                }
+            }
+
             if (event.key === Qt.Key_A) {
                 sliderCorrecionLeftElement.value--;
                 event.accepted = true;
