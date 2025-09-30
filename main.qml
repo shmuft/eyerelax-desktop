@@ -36,14 +36,22 @@ Window {
                     MouseArea {
                         anchors.fill: imageData
                         onClicked: {
-                            target1.source = model.data
-                            target2.source = model.data
+                            if (model.stereo)
+                            {
+                                targetLeft.source = model.dataLeft
+                                targetRight.source = model.dataRight
+                            }
+                            else
+                            {
+                                targetLeft.source = model.data
+                                targetRight.source = model.data
+                            }
                         }
                     }
 
                     Image {
                         id: imageData
-                        source: model.data
+                        source: model.stereo ? model.dataLeft : model.data
                         anchors.fill: parent
                     }
                 }
@@ -51,21 +59,32 @@ Window {
                 model: ListModel {
                     ListElement {
                         data: "qrc:/img/target.png"
+                        stereo: false
                     }
                     ListElement {
                         data: "qrc:/img/minus.png"
+                        stereo: false
                     }
                     ListElement {
                         data: "qrc:/img/plus.png"
+                        stereo: false
                     }
                     ListElement {
                         data: "qrc:/img/square.png"
+                        stereo: false
                     }
                     ListElement {
                         data: "qrc:/img/circle.png"
+                        stereo: false
                     }
                     ListElement {
                         data: "qrc:/img/cow.png"
+                        stereo: false
+                    }
+                    ListElement {
+                        dataLeft: "qrc:/img/stereo1.jpg"
+                        dataRight: "qrc:/img/stereo2.jpg"
+                        stereo: true
                     }
                 }
             }
@@ -225,7 +244,7 @@ Window {
         }
 
         Image {
-            id: target1
+            id: targetLeft
             x: {
                 let calculatedX = - 50 - sliderWidth.value - sliderCorrecionLeftElement.value;
                 if (calculatedX >= 0)
@@ -239,7 +258,7 @@ Window {
         }
 
         Image {
-            id: target2
+            id: targetRight
             x: {
                 let calculatedX = 50 + sliderWidth.value + sliderCorrecionRightElement.value
                 if (calculatedX <= 0)
