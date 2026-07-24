@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Расслабон для глаз</title>
+    <style>
+        body {
+            margin: 0;
+            background: #FFB140;
+            font-family: sans-serif;
+        }
+        #container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+        #sidebar {
+            width: 150px;
+            background: #A66200;
+            padding: 10px 0 10px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .sidebar-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: contain;
+            background: #fff3;
+            cursor: pointer;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: border 0.2s;
+        }
+        .sidebar-img.selected {
+            border: 2px solid #fff;
+        }
+        #main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0 0 0;
+        }
+        #controls {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 5px 20px;
+            max-width: 700px;
+            margin: 0 auto;
+            align-items: center;
+        }
+        #info {
+            margin-left: 20px;
+            font-size: 16px;
+            white-space: pre-line;
+        }
+        #targets {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            margin: 30px 0;
+        }
+        .target-img {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, 0);
+            transition: left 0.2s, top 0.2s, width 0.2s, height 0.2s;
+            pointer-events: none;
+        }
+        #footer {
+            text-align: center;
+            font-size: 16px;
+            margin-top: auto;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="container">
+    <div id="sidebar"></div>
+    <div id="main">
+        <div id="controls">
+            <label>Раздвинуть</label>
+            <input type="range" id="sliderWidth" min="-100" max="500" value="1">
+            <label>Размер</label>
+            <input type="range" id="sliderSize" min="1" max="200" value="100">
+            <label>Сплюснуть</label>
+            <input type="range" id="sliderWidthElement" min="0" max="1" step="0.01" value="1">
+            <label>Вверх/вниз</label>
+            <input type="range" id="sliderUpDown" min="-200" max="200" value="0">
+            <label>Корр-я по x правой</label>
+            <input type="range" id="sliderCorrecionRightElement" min="-50" max="50" value="0">
+            <label>Корр-я по x левой</label>
+            <input type="range" id="sliderCorrecionLeftElement" min="-50" max="50" value="0">
+        </div>
+        <div id="info">
+            Стрелки: Влево, вправо, вверх, вниз.<br>
+            Кнопки плюс, минус, A, S, Z, X<br>
+            Расслабьте глаза и начните<br>
+            смотреть вдаль соединяя мишени.<br>
+            Далее используйте клавиши
+        </div>
+        <div id="targets">
+            <img id="target1" class="target-img" src="img/target.png" alt="">
+            <img id="target2" class="target-img" src="img/target.png" alt="">
+        </div>
+        <div id="footer">
+            Автор данного приложения не несёт ответственности за ваши действия<br>
+            при использовании данного приложения
+        </div>
+    </div>
+</div>
+<script>
+    // Список изображений
+    const images = [
+        "img/target.png",
+        "img/minus.png",
+        "img/plus.png",
+        "img/square.png",
+        "img/circle.png",
+        "img/cow.png"
+    ];
+    // Заполнение боковой панели
+    const sidebar = document.getElementById('sidebar');
+    let selectedImg = images[0];
+    images.forEach((src, idx) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'sidebar-img' + (idx === 0 ? ' selected' : '');
+        img.onclick = () => {
+            document.querySelectorAll('.sidebar-img').forEach(i => i.classList.remove('selected'));
+            img.classList.add('selected');
+            document.getElementById('target1').src = src;
+            document.getElementById('target2').src = src;
+            selectedImg = src;
+        };
+        sidebar.appendChild(img);
+    });
+
+    // Слайдеры
+    const sliderWidth = document.getElementById('sliderWidth');
+    const sliderSize = document.getElementById('sliderSize');
+    const sliderWidthElement = document.getElementById('sliderWidthElement');
+    const sliderUpDown = document.getElementById('sliderUpDown');
+    const sliderCorrecionRightElement = document.getElementById('sliderCorrecionRightElement');
+    const sliderCorrecionLeftElement = document.getElementById('sliderCorrecionLeftElement');
+
+    // Мишени
+    const target1 = document.getElementById('target1');
+    const target2 = document.getElementById('target2');
+
+    function updateTargets() {
+        const rootWidth = window.innerWidth;
+        const rootHeight = window.innerHeight;
+        const size = Number(sliderSize.value);
+        const widthElement = Number(sliderWidthElement.value);
+        const upDown = Number(sliderUpDown.value);
+        const width = Number(sliderWidth.value);
+        const corRight = Number(sliderCorrecionRightElement.value);
+        const corLeft = Number(sliderCorrecionLeftElement.value);
+
+        // target1
+        let calculatedX1 = -50 - width - corLeft;
+        let x1 = (calculatedX1 >= 0 ? rootWidth / 2 : rootWidth / 2 + calculatedX1);
+        // target2
+        let calculatedX2 = 50 + width + corRight;
+        let x2 = (calculatedX2 <= 0 ? rootWidth / 2 : rootWidth / 2 + calculatedX2);
+
+        target1.style.left = x1 + 'px';
+        target1.style.top = (rootHeight / 3 + upDown) + 'px';
+        target1.style.width = (size * widthElement) + 'px';
+        target1.style.height = size + 'px';
+
+        target2.style.left = x2 + 'px';
+        target2.style.top = (rootHeight / 3 + upDown) + 'px';
+        target2.style.width = (size * widthElement) + 'px';
+        target2.style.height = size + 'px';
+    }
+
+    // Обновление при изменении слайдеров
+    [sliderWidth, sliderSize, sliderWidthElement, sliderUpDown, sliderCorrecionRightElement, sliderCorrecionLeftElement].forEach(slider => {
+        slider.addEventListener('input', updateTargets);
+    });
+
+    // Обработка клавиш
+    document.addEventListener('keydown', (event) => {
+        switch (event.key) {
+            case "ArrowLeft": sliderWidth.value = Number(sliderWidth.value) + 1; break;
+            case "ArrowRight": sliderWidth.value = Number(sliderWidth.value) - 1; break;
+            case "ArrowUp": sliderUpDown.value = Number(sliderUpDown.value) - 1; break;
+            case "ArrowDown": sliderUpDown.value = Number(sliderUpDown.value) + 1; break;
+            case "a": case "A": sliderCorrecionLeftElement.value = Number(sliderCorrecionLeftElement.value) - 1; break;
+            case "s": case "S": sliderCorrecionLeftElement.value = Number(sliderCorrecionLeftElement.value) + 1; break;
+            case "z": case "Z": sliderCorrecionRightElement.value = Number(sliderCorrecionRightElement.value) - 1; break;
+            case "x": case "X": sliderCorrecionRightElement.value = Number(sliderCorrecionRightElement.value) + 1; break;
+            case "+": sliderSize.value = Number(sliderSize.value) + 1; break;
+            case "-": sliderSize.value = Number(sliderSize.value) - 1; break;
+        }
+        updateTargets();
+    });
+
+    window.addEventListener('resize', updateTargets);
+    updateTargets();
+</script>
+</body>
+</html>

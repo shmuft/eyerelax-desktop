@@ -90,6 +90,92 @@ Window {
             }
         }
 
+        Rectangle {
+            id: algorithmListView
+            anchors {
+                right: parent.right
+                top: parent.top
+                bottom: parent.bottom
+                rightMargin: 10
+            }
+            width: 150
+            color: "#A66200"
+
+            ListView {
+                id: algorithmsView
+                anchors.fill: parent
+                spacing: 10
+                currentIndex: 0
+                delegate: Item {
+                    width: algorithmsView.width
+                    height: 80
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            algorithmsView.currentIndex = index
+                            root.selectedAlgorithm = model.algorithmType
+                        }
+                    }
+
+                    Rectangle {
+                        anchors {
+                            fill: parent
+                            margins: 2
+                        }
+                        color: algorithmsView.currentIndex === index ? "#FF8C00" : "#A66200"
+                        border.color: algorithmsView.currentIndex === index ? "#FFB140" : "#8B5000"
+                        border.width: 2
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: model.name
+                            color: algorithmsView.currentIndex === index ? "#FFFFFF" : "#FFB140"
+                            font.pixelSize: 14
+                            font.bold: algorithmsView.currentIndex === index
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                }
+
+                model: ListModel {
+                    ListElement {
+                        name: "Круг"
+                        algorithmType: "circle"
+                    }
+                    ListElement {
+                        name: "Спираль"
+                        algorithmType: "spiral"
+                    }
+                    ListElement {
+                        name: "Восьмёрка"
+                        algorithmType: "figure8"
+                    }
+                    ListElement {
+                        name: "Линия"
+                        algorithmType: "line"
+                    }
+                    ListElement {
+                        name: "Хаос"
+                        algorithmType: "chaos"
+                    }
+                    ListElement {
+                        name: "Диагональ"
+                        algorithmType: "diagonal"
+                    }
+                    ListElement {
+                        name: "Ближе-дальше"
+                        algorithmType: "nearfar"
+                    }
+                    ListElement {
+                        name: "Пендуль"
+                        algorithmType: "pendulum"
+                    }
+                }
+            }
+        }
+
         GridLayout {
             id: grid
             columns: 2
@@ -190,7 +276,7 @@ Window {
             anchors {
                 left: grid.right
                 top: grid.top
-                right: parent.right
+                right: algorithmListView.left
                 leftMargin: 10
             }
             font.pointSize: 16
@@ -203,6 +289,7 @@ Window {
         property real algorithmSavedUpDown: 0
         property real algorithmCircleRadius: 25 // radius of circular motion in pixels
         property real algorithmMaxBaseline: 50 // clamp baseline separation to +/- this value when starting
+        property string selectedAlgorithm: "circle"
 
         Timer {
             id: algorithmTimer
@@ -211,13 +298,55 @@ Window {
             running: root.algorithmState === 2
             property real angle: 0
             property real speed: 0.01
+            property real chaosX: 0
+            property real chaosY: 0
             onTriggered: {
                 angle += speed
 
                 var baseline = root.algorithmSavedWidth
                 var r = root.algorithmCircleRadius
-                sliderWidth.value = baseline + Math.cos(angle) * r - r
-                sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * r
+
+                if (root.selectedAlgorithm === "circle") {
+                    // Круг
+                    sliderWidth.value = baseline + Math.cos(angle) * r - r
+                    sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * r
+                } else if (root.selectedAlgorithm === "spiral") {
+                    // Спираль — постепенно уменьшаемся
+                    var spiralR = r * (1 - 0.001 * (angle / (2 * Math.PI)))
+                    if (spiralR < 1) spiralR = r // сброс спирали
+                    sliderWidth.value = baseline + Math.cos(angle) * spiralR - r
+                    sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * spiralR
+                } else if (root.selectedAlgorithm === "figure8") {
+                    // Восьмёрка (леmniscata)
+                    var r8 = r * 1.2
+                    sliderWidth.value = baseline + Math.sin(angle) * r8 / (1 + Math.sin(angle) * Math.sin(angle))
+                    sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * Math.cos(angle) * r8 / (1 + Math.sin(angle) * Math.sin(angle))
+                } else if (root.selectedAlgorithm === "line") {
+                    // Линейное движение туда-сюда
+                    sliderWidth.value = baseline + Math.cos(angle) * r - r
+                    sliderUpDown.value = root.algorithmSavedUpDown
+                } else if (root.selectedAlgorithm === "chaos") {
+                    // Хаотичное движение — ограниченный разброс
+                    chaosX += (Math.random() - 0.5) * 1.005
+                    chaosY += (Math.random() - 0.5) * 1.005
+                    chaosX = Math.max(-0.03, Math.min(0.03, chaosX))
+                    chaosY = Math.max(-0.03, Math.min(0.03, chaosY))
+                    sliderWidth.value = baseline + chaosX * r
+                    sliderUpDown.value = root.algorithmSavedUpDown + chaosY * r
+                } else if (root.selectedAlgorithm === "diagonal") {
+                    // Диагональные движения — туда-сюда по диагонали
+                    sliderWidth.value = baseline + Math.cos(angle) * r - r
+                    sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * r
+                } else if (root.selectedAlgorithm === "nearfar") {
+                    // Ближе-дальше — аккомодационное упражнение: мишени сходятся/разводятся
+                    var nf = baseline + Math.cos(angle) * r - r
+                    sliderWidth.value = nf
+                    sliderUpDown.value = root.algorithmSavedUpDown
+                } else if (root.selectedAlgorithm === "pendulum") {
+                    // Пендуль — плавные качающиеся движения (метод Бейтса)
+                    sliderWidth.value = baseline + Math.cos(angle) * r - r
+                    sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * r * 0.4
+                }
             }
         }
 
@@ -226,7 +355,7 @@ Window {
             anchors {
                 left: grid.right
                 top: descriptionLabel.bottom
-                right: parent.right
+                right: algorithmListView.left
             }
             enabled: root.algorithmState == 0
 
