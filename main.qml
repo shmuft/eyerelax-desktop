@@ -145,32 +145,8 @@ Window {
                         algorithmType: "circle"
                     }
                     ListElement {
-                        name: "Спираль"
-                        algorithmType: "spiral"
-                    }
-                    ListElement {
                         name: "Восьмёрка"
                         algorithmType: "figure8"
-                    }
-                    ListElement {
-                        name: "Линия"
-                        algorithmType: "line"
-                    }
-                    ListElement {
-                        name: "Хаос"
-                        algorithmType: "chaos"
-                    }
-                    ListElement {
-                        name: "Диагональ"
-                        algorithmType: "diagonal"
-                    }
-                    ListElement {
-                        name: "Ближе-дальше"
-                        algorithmType: "nearfar"
-                    }
-                    ListElement {
-                        name: "Пендуль"
-                        algorithmType: "pendulum"
                     }
                 }
             }
@@ -310,43 +286,17 @@ Window {
                     // Круг
                     sliderWidth.value = baseline + Math.cos(angle) * r - r
                     sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * r
-                } else if (root.selectedAlgorithm === "spiral") {
-                    // Спираль — постепенно уменьшаемся
-                    var spiralR = r * (1 - 0.001 * (angle / (2 * Math.PI)))
-                    if (spiralR < 1) spiralR = r // сброс спирали
-                    sliderWidth.value = baseline + Math.cos(angle) * spiralR - r
-                    sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * spiralR
                 } else if (root.selectedAlgorithm === "figure8") {
                     // Восьмёрка (леmniscata)
-                    var r8 = r * 1.2
-                    sliderWidth.value = baseline + Math.sin(angle) * r8 / (1 + Math.sin(angle) * Math.sin(angle))
-                    sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * Math.cos(angle) * r8 / (1 + Math.sin(angle) * Math.sin(angle))
-                } else if (root.selectedAlgorithm === "line") {
-                    // Линейное движение туда-сюда
-                    sliderWidth.value = baseline + Math.cos(angle) * r - r
-                    sliderUpDown.value = root.algorithmSavedUpDown
-                } else if (root.selectedAlgorithm === "chaos") {
-                    // Хаотичное движение — ограниченный разброс
-                    chaosX += (Math.random() - 0.5) * 1.005
-                    chaosY += (Math.random() - 0.5) * 1.005
-                    chaosX = Math.max(-0.03, Math.min(0.03, chaosX))
-                    chaosY = Math.max(-0.03, Math.min(0.03, chaosY))
-                    sliderWidth.value = baseline + chaosX * r
-                    sliderUpDown.value = root.algorithmSavedUpDown + chaosY * r
-                } else if (root.selectedAlgorithm === "diagonal") {
-                    // Диагональные движения — туда-сюда по диагонали
-                    sliderWidth.value = baseline + Math.cos(angle) * r - r
-                    sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * r
-                } else if (root.selectedAlgorithm === "nearfar") {
-                    // Ближе-дальше — аккомодационное упражнение: мишени сходятся/разводятся
-                    var nf = baseline + Math.cos(angle) * r - r
-                    sliderWidth.value = nf
-                    sliderUpDown.value = root.algorithmSavedUpDown
-                } else if (root.selectedAlgorithm === "pendulum") {
-                    // Пендуль — плавные качающиеся движения (метод Бейтса)
-                    sliderWidth.value = baseline + Math.cos(angle) * r - r
-                    sliderUpDown.value = root.algorithmSavedUpDown + Math.sin(angle) * r * 0.4
+                    var A = baseline / 2
+                    var B = 50
+                    sliderWidth.value = baseline + Math.cos(angle) * A - A
+                    sliderUpDown.value = Math.sin(2*angle) * B
                 }
+
+                ///---ВАЖНО! Дальше нельзя чтобы не убить глаза!!!
+                if (sliderWidth.value > baseline)
+                    sliderWidth.value = baseline
             }
         }
 
